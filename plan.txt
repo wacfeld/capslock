@@ -1,0 +1,4 @@
+/home/wacfeld/Dropbox/flowcharts/what?/dot.gv
+- flowcharts look like this
+- however parsing dotfiles is a pain 
+- therefore we will use a simpler format, and then convert to dotfiles if we want a visual representation
