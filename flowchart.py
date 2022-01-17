@@ -29,7 +29,7 @@ collatz
 '''
 
 # see if string ends in '?'
-def isquestion(s):
+def gettype(s):
     if s[-1] == '?':
         return 'q'
     else:
@@ -58,7 +58,7 @@ def mini2dot(minifile):
     nametypes = {} # dictionary of name types (question/command)
     while(minifile[0]) != '': # assign names
         pair = minifile[0].split(maxsplit=1) # split on first space
-        nametypes[pair[0]] = isquestion(pair[1]) # store if it is a question
+        nametypes[pair[0]] = gettype(pair[1]) # store if it is a question
         dotfile += pair[0] + '[label="' + pair[1] + '"'
         if nametypes[pair[0]] == 'c': # command
             dotfile += ',shape=box'
@@ -93,6 +93,63 @@ def mini2dot(minifile):
 
     return dotfile
 
+# create a dictionary containing the structure of the flowchart
+def interp(minifile):
+    minifile = minifile.split('\n')
 
-minifile = sys.stdin.read()
-print(mini2dot(minifile))
+    del minifile[0] # remove title
+    skipblanks(minifile)
+
+    names = {} # dictionary of names
+    while(minifile[0]) != '': # assign names
+        pair = minifile[0].split(maxsplit=1) # split on first space
+        names[pair[0]] = pair[1]
+
+        del minifile[0]
+    
+    skipblanks(minifile)
+
+    connections = {} # dictionary of connections
+    while len(minifile) > 0 and minifile[0] != '':
+        cur = minifile[0]
+        src = names[cur.split(maxsplit=1)[0]]
+        mid = None
+        dest = names[cur[::-1].split(maxsplit=1)[0]] # reverse string, split
+        
+        # questions point to a dictionary with potential answers and destinations for them
+        if gettype(src) == 'q':
+            mid = cur.split(maxsplit=1)[1][::-1].split(maxsplit=1)[1][::-1] # cut off src, reverse, cut off dest, reverse
+
+            if src in connections: # don't need to create it
+                pass
+            else:
+                connections[src] = {} # create empty dict
+
+            connections[src][mid] = dest
+        # commands always have one destination
+        else:
+            connections[src] = dest
+
+        del minifile[0]
+    
+    return connections
+
+def run(minifile):
+    connections = interp(minifile)
+
+    cur = 'START' # always start at START
+    while cur != 'END': # always end at END
+        act = input(cur + ' ')
+        if gettype(cur) == 'c': # interpret as 'continue'
+            cur = connections[cur]
+        else: # question
+            if act in connections[cur]:
+                cur = connections[cur][act]
+            else:
+                print('invalid')
+ # TODO show options on question
+ # TODO allow going backwards
+
+with open('testflow.txt') as f:
+    minifile = f.read()
+    run(minifile)
