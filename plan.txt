@@ -2,3 +2,7 @@
 - flowcharts look like this
 - however parsing dotfiles is a pain 
 - therefore we will use a simpler format, and then convert to dotfiles if we want a visual representation
+
+- sth .sth . terminal interface to draw images, interactively do stuff, etc. like all those applications
+    - ncurses? whatever the hell that is
+    - like for example i want a photo of the flowchart in the background

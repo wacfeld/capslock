@@ -74,10 +74,11 @@ def mini2dot(minifile):
         cur = minifile[0]
         src = cur.split(maxsplit=1)[0]
         mid = None
-        dest = cur[::-1].split(maxsplit=1)[0] # reverse string, split
+        dest = cur[::-1].split(maxsplit=1)[0][::-1] # reverse string, split, reverse
 
         dotfile += src + ' -> ' + dest
-        if nametypes[src] == 'q': # question
+        # if nametypes[src] == 'q': # question
+        if len(cur.split()) != 2: # label
             mid = cur.split(maxsplit=1)[1][::-1].split(maxsplit=1)[1][::-1] # cut off src, reverse, cut off dest, reverse
             dotfile += '[label="' + mid + '"]'
         
@@ -87,7 +88,7 @@ def mini2dot(minifile):
     
     # add title
     dotfile += 'labelloc="t";\n'
-    dotfile += 'label=' + title + ';\n'
+    dotfile += 'label="' + title + '";\n'
     
     dotfile += '}' # close
 
@@ -114,7 +115,7 @@ def interp(minifile):
         cur = minifile[0]
         src = names[cur.split(maxsplit=1)[0]]
         mid = None
-        dest = names[cur[::-1].split(maxsplit=1)[0]] # reverse string, split
+        dest = names[cur[::-1].split(maxsplit=1)[0][::-1]] # reverse string, split, reverse
         
         # questions point to a dictionary with potential answers and destinations for them
         if gettype(src) == 'q':
@@ -139,7 +140,11 @@ def run(minifile):
 
     cur = 'START' # always start at START
     while cur != 'END': # always end at END
-        act = input(cur + ' ')
+        if gettype(cur) == 'q': # have to show options
+            print(cur + ' (' + '/'.join(connections[cur].keys()) + ') ', end="")
+        else:
+            print(cur + ' ', end="")
+        act = input()
         if gettype(cur) == 'c': # interpret as 'continue'
             cur = connections[cur]
         else: # question
@@ -147,9 +152,12 @@ def run(minifile):
                 cur = connections[cur][act]
             else:
                 print('invalid')
- # TODO show options on question
- # TODO allow going backwards
 
-with open('testflow.txt') as f:
+# TODO show options on question
+# TODO allow going backwards
+# TODO random access jumps
+# TODO allowing options for non-questions. probably have everything be a dictionary, with empty dictionary meaning it's not a question
+
+with open('what.mini') as f:
     minifile = f.read()
     run(minifile)
